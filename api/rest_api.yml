@@ -1,0 +1,727 @@
+openapi: 3.0.3
+info:
+  title: System Design || REST for social network
+  description: 'Example REST for social network'
+  version: 1.0.0
+tags:
+  - name: friends
+    description: Operations about friends
+  - name: friendship
+    description: Operations about friendship
+  - name: user
+    description: Operations about user
+  - name: post
+    description: Operations about post
+  - name: chat
+    description: Operations about chat
+paths:
+  /friendship:
+    get:
+      tags:
+        - friendship
+      summary: Get friendship requests list.
+      description: This can only be done by the logged in user.
+      operationId: GetListFriendshipRequests
+      parameters:
+        - name: limit
+          in: query
+          description: Count for response (default = 30)
+          required: false
+          explode: true
+          example: 30
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Offset by start (default = 0)
+          required: false
+          explode: true
+          example: 0
+          schema:
+            type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestList:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        userId:
+                          type: string
+                          format: uuid
+                        message:
+                          type: string
+                        createdAt:
+                          type: string
+                  paginationInfo:
+                    $ref: '#/components/schemas/PaginationInfo'
+        403:
+          $ref: '#/components/schemas/ApiResponse'
+        400:
+          $ref: '#/components/schemas/ApiResponse'
+        500:
+          $ref: '#/components/schemas/ApiResponse'
+      security:
+        - vk_auth:
+            - add:friends
+            - remove:friends
+    post:
+      tags:
+        - friendship
+      summary: Create request for add friend to list.
+      description: This can only be done by the logged in user.
+      operationId: RequestToAddFriendOnList
+      requestBody:
+        description: Request was send
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                message:
+                  type: string
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        403:
+          $ref: '#/components/schemas/ApiResponse'
+        400:
+          $ref: '#/components/schemas/ApiResponse'
+        500:
+          $ref: '#/components/schemas/ApiResponse'
+      security:
+        - vk_auth:
+            - add:friends
+  /friendship/{friendshipId}:
+    put:
+      tags:
+        - friendship
+      summary: Accept request to friendship by id.
+      description: This can only be done by the logged in user.
+      operationId: AcceptRequestFriendshipById
+      parameters:
+        - name: friendshipId
+          in: path
+          description: ID friendship
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        403:
+          $ref: '#/components/schemas/ApiResponse'
+        400:
+          $ref: '#/components/schemas/ApiResponse'
+        500:
+          $ref: '#/components/schemas/ApiResponse'
+      security:
+        - vk_auth:
+            - add:friends
+    delete:
+      tags:
+        - friendship
+      summary: Reject request on friendship.
+      description: This can only be done by the logged in user.
+      operationId: RejectRequestFriendshipById
+      parameters:
+        - name: friendshipId
+          in: path
+          description: ID of friend to friendship
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        403:
+          $ref: '#/components/schemas/ApiResponse'
+        400:
+          $ref: '#/components/schemas/ApiResponse'
+        500:
+          $ref: '#/components/schemas/ApiResponse'
+      security:
+        - vk_auth:
+            - remove:friends
+  /friends:
+    get:
+      tags:
+        - friends
+      summary: Get frineds list
+      description: This can only be done by the logged in user.
+      operationId: GetListFriends
+      parameters:
+        - name: limit
+          in: query
+          description: Count for response (default = 30)
+          required: false
+          explode: true
+          example: 30
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Offset by start (default = 0)
+          required: false
+          explode: true
+          example: 0
+          schema:
+            type: integer
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requestList:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  paginationInfo:
+                    $ref: '#/components/schemas/PaginationInfo'
+        403:
+          $ref: '#/components/schemas/ApiResponse'
+        400:
+          $ref: '#/components/schemas/ApiResponse'
+        500:
+          $ref: '#/components/schemas/ApiResponse'
+      security:
+        - vk_auth:
+            - show:friends
+  /friends/{fiendId}:
+    get:
+      tags:
+        - friends
+      summary: Get friend by id
+      description: This can only be done by the logged in user.
+      operationId: GetFriendById
+      parameters:
+        - name: fiendId
+          in: path
+          description: ID friend user
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        403:
+          $ref: '#/components/schemas/ApiResponse'
+        400:
+          $ref: '#/components/schemas/ApiResponse'
+        500:
+          $ref: '#/components/schemas/ApiResponse'
+      security:
+        - vk_auth:
+            - show:friends
+
+  /user:
+    get:
+      tags:
+        - user
+      summary: Get user info.
+      description: This can only be done by the logged in user.
+      operationId: GetUserInfo
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        403:
+          $ref: '#/components/schemas/ApiResponse'
+        400:
+          $ref: '#/components/schemas/ApiResponse'
+        500:
+          $ref: '#/components/schemas/ApiResponse'
+      security:
+        - vk_auth:
+            - show:friends
+  /chat:
+    get:
+      tags:
+        - chat
+      summary: Get user chats
+      description: This can only be done by the logged in user.
+      operationId: GetUserChatsList
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  userId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  createdAt:
+                    type: string
+      security:
+        - vk_auth:
+            - show:friends
+  /chat/{chatId}:
+    get:
+      tags:
+        - chat
+      summary: Get user chats
+      description: This can only be done by the logged in user.
+      operationId: GetUserChatById
+      parameters:
+        - name: chatId
+          in: path
+          description: ID chat user
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  userId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  createdAt:
+                    type: string
+      security:
+        - vk_auth:
+            - show:friends
+  /chat/{chatId}/message:
+    get:
+      tags:
+        - chat
+      summary: get messages from chat
+      description: This can only be done by the logged in user.
+      operationId: GetMessages
+      parameters:
+        - name: chatId
+          in: path
+          description: ID chat user
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Count for response (default = 30)
+          required: false
+          explode: true
+          example: 30
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Offset by start (default = 0)
+          required: false
+          explode: true
+          example: 0
+          schema:
+            type: integer
+      requestBody:
+        description: Request was send
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+      security:
+        - vk_auth:
+            - show:friends
+    post:
+      tags:
+        - chat
+      summary: Add new message in chat
+      description: This can only be done by the logged in user.
+      operationId: CreateNewMessage
+      parameters:
+        - name: chatId
+          in: path
+          description: ID chat user
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Request was send
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  userId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  createdAt:
+                    type: string
+      security:
+        - vk_auth:
+            - show:friends
+    put:
+      tags:
+        - chat
+      summary: Add read flag on message
+      description: This can only be done by the logged in user.
+      operationId: updateStatusMessage
+      parameters:
+        - name: chatId
+          in: path
+          description: ID chat user
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Request was send
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+      security:
+        - vk_auth:
+            - show:friends
+
+  /post:
+    get:
+      tags:
+        - post
+      summary: Get list post user
+      description: This can only be done by the logged in user.
+      operationId: GetUserPosts
+      parameters:
+        - name: limit
+          in: query
+          description: Count for response (default = 30)
+          required: false
+          explode: true
+          example: 30
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Offset by start (default = 0)
+          required: false
+          explode: true
+          example: 0
+          schema:
+            type: integer
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+                  paginationInfo:
+                    $ref: '#/components/schemas/PaginationInfo'
+      security:
+        - vk_auth:
+            - show:friends
+    post:
+      tags:
+        - post
+      summary: Create request for add frined to list
+      description: This can only be done by the logged in user.
+      operationId: CreateNewPost
+      requestBody:
+        description: Request was send
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+                media:
+                  type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        403:
+          $ref: '#/components/schemas/ApiResponse'
+        400:
+          $ref: '#/components/schemas/ApiResponse'
+        500:
+          $ref: '#/components/schemas/ApiResponse'
+      security:
+        - vk_auth:
+            - add:post
+
+  /post/{userId}:
+    get:
+      tags:
+        - post
+      summary: Get list post user by id
+      description: This can only be done by the logged in user.
+      operationId: GetUserPostsById
+      parameters:
+        - name: userId
+          in: path
+          description: ID user
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Count for response (default = 30)
+          required: false
+          explode: true
+          example: 30
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          description: Offset by start (default = 0)
+          required: false
+          explode: true
+          example: 0
+          schema:
+            type: integer
+      responses:
+        default:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  posts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+                  paginationInfo:
+                    $ref: '#/components/schemas/PaginationInfo'
+      security:
+        - vk_auth:
+            - show:friends
+
+  /upload:
+    post:
+      tags:
+        - Upload
+      summary: Add media content
+      description: Add media content
+      operationId: AddNewMediaFiles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                content:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        500:
+          $ref: '#/components/schemas/ApiResponse'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          example: theUser
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: James
+        email:
+          type: string
+          example: john@email.com
+        phone:
+          type: string
+          example: '79998569874'
+        statusFriendship:
+          type: string
+          enum: [ 'accepted', 'requested', 'notRequested' ]
+        userStatus:
+          type: integer
+          description: User Status
+          format: int32
+          example: 1
+      xml:
+        name: user
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        sendUserId:
+          type: string
+          format: uuid
+        content:
+          type: string
+          example: content
+        status:
+          type: string
+          enum: [ 'read', 'send', 'delivery' ]
+      xml:
+        name: user
+    File:
+      properties:
+        id:
+          type: string
+          description: Hash identification
+        url:
+          type: string
+          description: Media URL
+        bucket:
+          type: string
+        type:
+          type: string
+          enum: [ 'image', 'video', 'audio' , 'file' ]
+        size:
+          type: string
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        content:
+          type: string
+          example: theUser
+        createdAt:
+          type: string
+      xml:
+        name: user
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      xml:
+        name: '##default'
+    PaginationInfo:
+      type: object
+      properties:
+        limit:
+          type: integer
+          format: int32
+        offset:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+      xml:
+        name: '##default'
+  securitySchemes:
+    vk_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://oauth.vk.com/authorize
+          scopes:
+            add:friends: Add friends in list
+            remove:friends: Remove friends from list
+            show:friends: Show list friends
+
+            add:post: Create post
