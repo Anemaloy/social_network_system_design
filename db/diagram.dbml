@@ -12,7 +12,7 @@ Table uploads {
   updated_at timestamp
 }
 
-// Postgres
+// MongoDB
 // Replication:
 // master-slave (one sync + async)
 Table users {
@@ -41,7 +41,7 @@ Table friendships {
 
 // Tarantool
 // Replication:
-// master-slave (sync)
+// master-slave (async)
 Table user_upload {
   id varchar
   user_id varchar
@@ -61,7 +61,7 @@ Table post_upload {
 
 // Tarantool
 // Replication:
-// master-slave (sync)
+// master-slave (one sync + async)
 Table posts {
   id varchar
   content text
@@ -72,7 +72,7 @@ Table posts {
 
 // Tarantool
 // Replication:
-// master-slave (sync)
+// master-slave (one sync + async)
 Table chats {
   id varchar
   created_at timestamp
@@ -81,7 +81,7 @@ Table chats {
 
 // Tarantool
 // Replication:
-// master-slave (sync)
+// master-slave (one sync + async)
 Table user_chat {
   id varchar
   user_id varchar
@@ -92,7 +92,7 @@ Table user_chat {
 
 // Tarantool
 // Replication:
-// master-slave (sync)
+// master-slave (one sync + async)
 Table messages {
   id varchar
   chat_id varchar
@@ -124,7 +124,7 @@ Table comments {
 
 // key-value
 // Replication:
-// master-slave (sync)
+// master-slave (async)
 Table likes {
   post_id varchar
   likes biginteger
